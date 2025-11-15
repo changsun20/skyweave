@@ -42,7 +42,7 @@ func initDB() error {
 func checkAndMigrate() error {
 	// Try to query the table with all expected columns
 	testQuery := `SELECT id, user_id, location_input, location_name, country, 
-	              latitude, longitude, target_date, image_path, 
+	              latitude, longitude, target_date, time_of_day, image_path, 
 	              weather_condition, weather_description, temperature, feels_like,
 	              humidity, clouds, wind_speed, visibility, precipitation, ai_prompt,
 	              prediction_id, status, error_message, result_image_path, created_at, updated_at
@@ -79,8 +79,9 @@ func recreateTables() error {
 		country TEXT,
 		latitude REAL,
 		longitude REAL,
-		target_date TEXT NOT NULL,
-		image_path TEXT NOT NULL,
+			target_date TEXT NOT NULL,
+			time_of_day TEXT,
+			image_path TEXT NOT NULL,
 		weather_condition TEXT,
 		weather_description TEXT,
 		temperature REAL,
@@ -123,6 +124,7 @@ type Request struct {
 	Latitude           float64
 	Longitude          float64
 	TargetDate         string
+	TimeOfDay          string
 	ImagePath          string
 	WeatherCondition   string
 	WeatherDescription string
@@ -142,9 +144,10 @@ type Request struct {
 
 // saveRequest saves a new request to the database
 func saveRequest(req *Request) error {
-	query := `INSERT INTO requests (id, user_id, location_input, target_date, image_path, status)
-	          VALUES (?, ?, ?, ?, ?, ?)`
-	_, err := db.Exec(query, req.ID, req.UserID, req.LocationInput, req.TargetDate, req.ImagePath, req.Status)
+	query := `INSERT INTO requests (id, user_id, location_input, target_date, time_of_day, image_path, status)
+	          VALUES (?, ?, ?, ?, ?, ?, ?)`
+	_, err := db.Exec(query, req.ID, req.UserID, req.LocationInput, req.TargetDate,
+		req.TimeOfDay, req.ImagePath, req.Status)
 	return err
 }
 
@@ -217,7 +220,7 @@ func getRequest(id string) (*Request, error) {
 	query := `SELECT id, user_id, location_input, 
 	          COALESCE(location_name, ''), COALESCE(country, ''),
 	          COALESCE(latitude, 0), COALESCE(longitude, 0),
-	          target_date, image_path, 
+	          target_date, COALESCE(time_of_day, ''), image_path, 
 	          COALESCE(weather_condition, ''), COALESCE(weather_description, ''),
 	          COALESCE(temperature, 0), COALESCE(feels_like, 0),
 	          COALESCE(humidity, 0), COALESCE(clouds, 0),
@@ -231,7 +234,7 @@ func getRequest(id string) (*Request, error) {
 	err := db.QueryRow(query, id).Scan(
 		&req.ID, &req.UserID, &req.LocationInput,
 		&req.LocationName, &req.Country, &req.Latitude, &req.Longitude,
-		&req.TargetDate, &req.ImagePath,
+		&req.TargetDate, &req.TimeOfDay, &req.ImagePath,
 		&req.WeatherCondition, &req.WeatherDescription,
 		&req.Temperature, &req.FeelsLike, &req.Humidity, &req.Clouds,
 		&req.WindSpeed, &req.Visibility, &req.Precipitation, &req.AIPrompt,

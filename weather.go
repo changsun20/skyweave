@@ -385,7 +385,7 @@ func convertForecastToWeatherData(forecast *struct {
 }
 
 // generatePrompt creates an AI prompt for image editing based on weather data
-func generatePrompt(weatherData *WeatherData, locationName string) string {
+func generatePrompt(weatherData *WeatherData, locationName string, timeOfDay string) string {
 	// Extract weather condition
 	condition := weatherData.Condition
 	if condition == "" {
@@ -394,6 +394,27 @@ func generatePrompt(weatherData *WeatherData, locationName string) string {
 	description := weatherData.Description
 	if description == "" {
 		description = "clear sky"
+	}
+
+	// Time of day description
+	timeDesc := ""
+	if timeOfDay != "" {
+		switch timeOfDay {
+		case "dawn":
+			timeDesc = " The scene should be captured during dawn/sunrise with warm golden light on the horizon and soft, diffused lighting. "
+		case "morning":
+			timeDesc = " The scene should be captured in the morning (8-11 AM) with fresh, bright daylight and clear shadows. "
+		case "noon":
+			timeDesc = " The scene should be captured at noon with overhead sunlight creating short, harsh shadows and maximum brightness. "
+		case "afternoon":
+			timeDesc = " The scene should be captured in the afternoon (2-5 PM) with warm, angled sunlight and longer shadows. "
+		case "dusk":
+			timeDesc = " The scene should be captured during dusk/sunset with warm orange-pink hues in the sky and soft, glowing light. "
+		case "night":
+			timeDesc = " The scene should be captured at night with dark skies, artificial lighting or moonlight, and deep shadows. "
+		}
+	} else {
+		timeDesc = " Maintain the original time of day and lighting angle from the photo. "
 	}
 
 	// Temperature in Celsius
@@ -465,6 +486,9 @@ func generatePrompt(weatherData *WeatherData, locationName string) string {
 			"The scene should show %s (%s) with %s and a temperature of %.1f°C (%s). ",
 		locationName, condition, description, cloudiness, temp, tempDesc,
 	)
+
+	// Add time of day description
+	prompt += timeDesc
 
 	if precipitation != "" {
 		prompt += fmt.Sprintf("Add %s falling in the scene. ", precipitation)

@@ -6,9 +6,11 @@
   {{else if eq .Status "weather_fetching"}}
   <p><strong>Status:</strong> Fetching weather data...</p>
   {{else if eq .Status "weather_fetched"}}
-  <h2>Weather Data Ready!</h2>
-  <p>Weather data has been successfully retrieved.</p>
-  <p><a href="/weather/{{.RequestID}}">Review Weather & Confirm</a></p>
+  <!-- Automatically redirect to weather confirmation page -->
+  <script>
+    window.location.href = "/weather/{{.RequestID}}";
+  </script>
+  <p><strong>Status:</strong> Redirecting to weather confirmation...</p>
   {{else if eq .Status "confirmed"}}
   <p><strong>Status:</strong> Processing image...</p>
   {{else if eq .Status "processing"}}
@@ -18,9 +20,38 @@
   <img
     src="/image/{{.RequestID}}"
     alt="Processed image"
-    style="max-width: 800px"
+    style="max-width: 800px; display: block; margin: 20px 0"
   />
-  <p><a href="/start">Create Another</a></p>
+  <div style="margin: 20px 0">
+    <a
+      href="/image/{{.RequestID}}"
+      download="skyweave-{{.RequestID}}.jpg"
+      style="
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        margin-right: 10px;
+      "
+    >
+      Download Image
+    </a>
+    <a
+      href="/start"
+      style="
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #28a745;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+      "
+    >
+      Create Another
+    </a>
+  </div>
   {{else if eq .Status "cancelled"}}
   <p><strong>Status:</strong> Request was cancelled.</p>
   <p><a href="/start">Start Over</a></p>

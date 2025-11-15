@@ -68,6 +68,7 @@ func submitHandler(w http.ResponseWriter, r *http.Request) {
 	userID := r.FormValue("user_id")
 	location := r.FormValue("location")
 	dateStr := r.FormValue("date")
+	timeOfDay := r.FormValue("time_of_day")
 
 	// Parse target date
 	targetDate, err := time.Parse("2006-01-02", dateStr)
@@ -104,6 +105,7 @@ func submitHandler(w http.ResponseWriter, r *http.Request) {
 		UserID:        userID,
 		LocationInput: location,
 		TargetDate:    dateStr,
+		TimeOfDay:     timeOfDay,
 		ImagePath:     imagePath,
 		Status:        "pending",
 	}
@@ -153,7 +155,16 @@ func processWeatherRequest(requestID, location string, targetDate time.Time) {
 	if geoResult.Country != "" {
 		locationStr += ", " + geoResult.Country
 	}
-	prompt := generatePrompt(weatherData, locationStr)
+
+	// Get the time of day from the request
+	req, err := getRequest(requestID)
+	if err != nil {
+		log.Printf("Failed to get request for prompt generation: %v", err)
+		updateRequestError(requestID, "Failed to retrieve request details")
+		return
+	}
+
+	prompt := generatePrompt(weatherData, locationStr, req.TimeOfDay)
 
 	// Update with weather data and prompt
 	if err := updateRequestWeather(requestID, weatherData, prompt); err != nil {
@@ -201,6 +212,21 @@ func confirmHandler(w http.ResponseWriter, r *http.Request) {
 	if action == "cancel" {
 		updateRequestStatus(requestID, "cancelled")
 		http.Redirect(w, r, "/status/"+requestID, http.StatusSeeOther)
+		return
+	}
+
+	// Check current status to prevent duplicate processing
+	req, err := getRequest(requestID)
+	if err != nil {
+		http.Error(w, "Request not found", http.StatusNotFound)
+		return
+	}
+
+	// Only start processing if status is weather_fetched
+	// This prevents duplicate API calls if user clicks confirm multiple times
+	if req.Status != "weather_fetched" {
+		// Already processing or completed, just redirect
+		http.Redirect(w, r, "/processing/"+requestID, http.StatusSeeOther)
 		return
 	}
 
