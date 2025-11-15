@@ -10,22 +10,56 @@
     <h1>Confirm Weather Conditions</h1>
 
     <div>
-      <h2>Your Request Details</h2>
+      <h2>Request Details</h2>
       <p><strong>Request ID:</strong> {{.Request.ID}}</p>
-      <p><strong>City:</strong> {{.Request.City}}</p>
+      <p><strong>User ID:</strong> {{.Request.UserID}}</p>
+      <p>
+        <strong>Location:</strong> {{.Request.LocationName}}{{if
+        .Request.Country}}, {{.Request.Country}}{{end}}
+      </p>
+      <p>
+        <strong>Coordinates:</strong> {{printf "%.4f" .Request.Latitude}},
+        {{printf "%.4f" .Request.Longitude}}
+      </p>
       <p><strong>Date:</strong> {{.Request.TargetDate}}</p>
     </div>
 
     <div>
-      <h2>Weather Forecast</h2>
-      <p><strong>Condition:</strong> {{.Request.WeatherCondition}}</p>
-      <p><strong>Temperature:</strong> {{.Request.Temperature}}</p>
+      <h2>Weather Data (Historical/Forecast)</h2>
+      <p>
+        <strong>Condition:</strong> {{.Request.WeatherCondition}} -
+        {{.Request.WeatherDescription}}
+      </p>
+      <p>
+        <strong>Temperature:</strong> {{printf "%.1f" .Request.Temperature}}°C
+        (Feels like: {{printf "%.1f" .Request.FeelsLike}}°C)
+      </p>
+      <p><strong>Humidity:</strong> {{.Request.Humidity}}%</p>
+      <p><strong>Cloud Coverage:</strong> {{.Request.Clouds}}%</p>
+      <p>
+        <strong>Wind Speed:</strong> {{printf "%.1f" .Request.WindSpeed}} m/s
+      </p>
+      <p><strong>Visibility:</strong> {{.Request.Visibility}} meters</p>
+      {{if .Request.Precipitation}}
+      <p><strong>Precipitation:</strong> {{.Request.Precipitation}}</p>
+      {{end}}
+    </div>
+
+    <div>
+      <h2>Generated AI Prompt</h2>
+      <p style="border: 1px solid #ccc; padding: 10px; background: #f5f5f5">
+        {{.Request.AIPrompt}}
+      </p>
+      <small
+        >This prompt will be used to transform your image based on the weather
+        conditions above.</small
+      >
     </div>
 
     <form action="/confirm" method="POST">
       <input type="hidden" name="request_id" value="{{.Request.ID}}" />
       <button type="submit" name="action" value="confirm">
-        Confirm & Process
+        Confirm & Process Image
       </button>
       <button type="submit" name="action" value="cancel">Cancel</button>
     </form>

@@ -42,17 +42,3 @@ func saveUploadedFile(file multipart.File, header *multipart.FileHeader, request
 
 	return filepath, nil
 }
-
-// simulateWeather returns mock weather data
-func simulateWeather(city, date string) (condition, temperature string) {
-	// Simple mock based on city first letter
-	conditions := []string{"Sunny", "Cloudy", "Rainy", "Snowy", "Foggy"}
-	temps := []string{"22°C", "15°C", "8°C", "-2°C", "18°C"}
-
-	index := 0
-	if len(city) > 0 {
-		index = int(city[0]) % len(conditions)
-	}
-
-	return conditions[index], temps[index]
-}

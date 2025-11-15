@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -33,10 +34,19 @@ func startHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	now := time.Now()
+	// Calculate date range: 1 year ago to 16 days ahead
+	minDate := now.AddDate(-1, 0, 0).Format("2006-01-02")
+	maxDate := now.AddDate(0, 0, 16).Format("2006-01-02")
+
 	data := struct {
-		UserID string
+		UserID  string
+		MinDate string
+		MaxDate string
 	}{
-		UserID: userID,
+		UserID:  userID,
+		MinDate: minDate,
+		MaxDate: maxDate,
 	}
 
 	templates.ExecuteTemplate(w, "start.html", data)
@@ -56,8 +66,15 @@ func submitHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	userID := r.FormValue("user_id")
-	city := r.FormValue("city")
-	date := r.FormValue("date")
+	location := r.FormValue("location")
+	dateStr := r.FormValue("date")
+
+	// Parse target date
+	targetDate, err := time.Parse("2006-01-02", dateStr)
+	if err != nil {
+		http.Error(w, "Invalid date format", http.StatusBadRequest)
+		return
+	}
 
 	// Get uploaded file
 	file, header, err := r.FormFile("photo")
@@ -83,12 +100,12 @@ func submitHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Create request record
 	req := &Request{
-		ID:         requestID,
-		UserID:     userID,
-		City:       city,
-		TargetDate: date,
-		ImagePath:  imagePath,
-		Status:     "pending",
+		ID:            requestID,
+		UserID:        userID,
+		LocationInput: location,
+		TargetDate:    dateStr,
+		ImagePath:     imagePath,
+		Status:        "pending",
 	}
 
 	if err := saveRequest(req); err != nil {
@@ -96,24 +113,71 @@ func submitHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Simulate weather API call
-	weather, temp := simulateWeather(city, date)
-	if err := updateRequestWeather(requestID, weather, temp); err != nil {
-		http.Error(w, "Failed to update weather", http.StatusInternalServerError)
+	// Start async processing
+	go processWeatherRequest(requestID, location, targetDate)
+
+	// Redirect to processing page immediately
+	http.Redirect(w, r, "/processing/"+requestID, http.StatusSeeOther)
+}
+
+// processWeatherRequest handles async geocoding and weather fetching
+func processWeatherRequest(requestID, location string, targetDate time.Time) {
+	// Step 1: Geocode location
+	geoResult, err := geocodeLocation(location)
+	if err != nil {
+		log.Printf("Geocoding failed for request %s: %v", requestID, err)
+		updateRequestError(requestID, fmt.Sprintf("Failed to find location: %v", err))
 		return
 	}
 
-	// Redirect to confirmation page
-	http.Redirect(w, r, "/weather/"+requestID, http.StatusSeeOther)
+	// Update with geocoding results
+	if err := updateRequestGeocode(requestID, geoResult.Name, geoResult.Country,
+		geoResult.Lat, geoResult.Lon); err != nil {
+		log.Printf("Failed to update geocode for request %s: %v", requestID, err)
+		return
+	}
+
+	// Update status to weather_fetching
+	updateRequestStatus(requestID, "weather_fetching")
+
+	// Step 2: Fetch weather data
+	weatherData, err := getHistoricalWeather(geoResult.Lat, geoResult.Lon, targetDate)
+	if err != nil {
+		log.Printf("Weather fetch failed for request %s: %v", requestID, err)
+		updateRequestError(requestID, fmt.Sprintf("Failed to fetch weather: %v", err))
+		return
+	}
+
+	// Step 3: Generate AI prompt
+	locationStr := geoResult.Name
+	if geoResult.Country != "" {
+		locationStr += ", " + geoResult.Country
+	}
+	prompt := generatePrompt(weatherData, locationStr)
+
+	// Update with weather data and prompt
+	if err := updateRequestWeather(requestID, weatherData, prompt); err != nil {
+		log.Printf("Failed to update weather for request %s: %v", requestID, err)
+		updateRequestError(requestID, "Failed to save weather data")
+		return
+	}
+
+	log.Printf("Weather data fetched successfully for request %s", requestID)
 }
 
-// weatherHandler displays weather confirmation page
+// weatherHandler displays weather confirmation page (now accessed via processing page)
 func weatherHandler(w http.ResponseWriter, r *http.Request) {
 	requestID := r.PathValue("id")
 
 	req, err := getRequest(requestID)
 	if err != nil {
 		http.Error(w, "Request not found", http.StatusNotFound)
+		return
+	}
+
+	// Only show if weather has been fetched
+	if req.Status != "weather_fetched" {
+		http.Redirect(w, r, "/processing/"+requestID, http.StatusSeeOther)
 		return
 	}
 
@@ -124,9 +188,7 @@ func weatherHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	templates.ExecuteTemplate(w, "confirm.html", data)
-}
-
-// confirmHandler handles user confirmation or cancellation
+} // confirmHandler handles user confirmation or cancellation
 func confirmHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -189,11 +251,13 @@ func statusHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := struct {
-		Status    string
-		RequestID string
+		Status       string
+		RequestID    string
+		ErrorMessage string
 	}{
-		Status:    req.Status,
-		RequestID: requestID,
+		Status:       req.Status,
+		RequestID:    requestID,
+		ErrorMessage: req.ErrorMessage,
 	}
 
 	templates.ExecuteTemplate(w, "status.html", data)

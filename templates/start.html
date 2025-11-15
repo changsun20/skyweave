@@ -18,13 +18,30 @@
       </div>
 
       <div>
-        <label for="city">City:</label>
-        <input type="text" id="city" name="city" required />
+        <label for="location">Location:</label>
+        <input
+          type="text"
+          id="location"
+          name="location"
+          placeholder="e.g., London,GB or 90210,US or Paris"
+          required
+        />
+        <small
+          >Enter city name (with optional country code) or US zip code</small
+        >
       </div>
 
       <div>
         <label for="date">Target Date:</label>
-        <input type="date" id="date" name="date" required />
+        <input
+          type="date"
+          id="date"
+          name="date"
+          required
+          min="{{.MinDate}}"
+          max="{{.MaxDate}}"
+        />
+        <small>Historical data (past year) or forecast (up to 16 days)</small>
       </div>
 
       <button type="submit">Submit</button>

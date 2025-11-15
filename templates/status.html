@@ -1,7 +1,20 @@
 <div>
-  <p><strong>Status:</strong> {{.Status}}</p>
-  {{if eq .Status "completed"}}
-  <h2>Your Processed Image</h2>
+  {{if eq .Status "pending"}}
+  <p><strong>Status:</strong> Initializing request...</p>
+  {{else if eq .Status "geocoding"}}
+  <p><strong>Status:</strong> Looking up location...</p>
+  {{else if eq .Status "weather_fetching"}}
+  <p><strong>Status:</strong> Fetching weather data...</p>
+  {{else if eq .Status "weather_fetched"}}
+  <h2>Weather Data Ready!</h2>
+  <p>Weather data has been successfully retrieved.</p>
+  <p><a href="/weather/{{.RequestID}}">Review Weather & Confirm</a></p>
+  {{else if eq .Status "confirmed"}}
+  <p><strong>Status:</strong> Processing image...</p>
+  {{else if eq .Status "processing"}}
+  <p><strong>Status:</strong> Image transformation in progress...</p>
+  {{else if eq .Status "completed"}}
+  <h2>Completed!</h2>
   <img
     src="/image/{{.RequestID}}"
     alt="Processed image"
@@ -9,9 +22,16 @@
   />
   <p><a href="/start">Create Another</a></p>
   {{else if eq .Status "cancelled"}}
-  <p>Request was cancelled.</p>
+  <p><strong>Status:</strong> Request was cancelled.</p>
   <p><a href="/start">Start Over</a></p>
+  {{else if eq .Status "error"}}
+  <p><strong>Status:</strong> Error occurred</p>
+  {{if .ErrorMessage}}
+  <p style="color: red">{{.ErrorMessage}}</p>
+  {{end}}
+  <p><a href="/start">Try Again</a></p>
   {{else}}
+  <p><strong>Status:</strong> {{.Status}}</p>
   <p>Processing... Please wait.</p>
   {{end}}
 </div>
