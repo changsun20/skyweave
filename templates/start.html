@@ -27,7 +27,14 @@
 
       <div>
         <label for="photo">Select Photo:</label>
-        <input type="file" id="photo" name="photo" accept="image/*" required onchange="previewPhoto(event)" />
+        <input
+          type="file"
+          id="photo"
+          name="photo"
+          accept="image/*"
+          required
+          onchange="previewPhoto(event)"
+        />
       </div>
 
       <div id="preview-container">
@@ -82,20 +89,20 @@
     <script>
       function previewPhoto(event) {
         const file = event.target.files[0];
-        const previewContainer = document.getElementById('preview-container');
-        const previewImage = document.getElementById('preview-image');
+        const previewContainer = document.getElementById("preview-container");
+        const previewImage = document.getElementById("preview-image");
 
-        if (file && file.type.startsWith('image/')) {
+        if (file && file.type.startsWith("image/")) {
           const reader = new FileReader();
-          
-          reader.onload = function(e) {
+
+          reader.onload = function (e) {
             previewImage.src = e.target.result;
-            previewContainer.style.display = 'block';
+            previewContainer.style.display = "block";
           };
-          
+
           reader.readAsDataURL(file);
         } else {
-          previewContainer.style.display = 'none';
+          previewContainer.style.display = "none";
         }
       }
     </script>
