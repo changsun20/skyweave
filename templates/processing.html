@@ -4,18 +4,36 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SkyWeave - Processing</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
   </head>
-  <body>
-    <h1>Processing Your Image</h1>
+  <body
+    class="bg-gradient-to-br from-blue-50 to-blue-100 min-h-screen flex items-center justify-center p-4"
+  >
+    <div class="max-w-4xl w-full">
+      <div class="text-center mb-8">
+        <h1 class="text-3xl md:text-4xl font-bold text-blue-600 mb-2">
+          Processing Your Image
+        </h1>
+        <p class="text-gray-600">Please wait while we transform your photo</p>
+      </div>
 
-    <div
-      id="status-container"
-      hx-get="/status/{{.RequestID}}"
-      hx-trigger="load, every 2s"
-      hx-swap="innerHTML"
-    >
-      <p>Initializing...</p>
+      <div class="bg-white rounded-2xl shadow-2xl p-6 md:p-8">
+        <div
+          id="status-container"
+          hx-get="/status/{{.RequestID}}"
+          hx-trigger="load, every 2s"
+          hx-swap="innerHTML"
+          class="min-h-[200px] flex items-center justify-center"
+        >
+          <div class="text-center">
+            <div
+              class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"
+            ></div>
+            <p class="text-gray-600">Initializing...</p>
+          </div>
+        </div>
+      </div>
     </div>
   </body>
 </html>

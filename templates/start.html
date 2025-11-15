@@ -4,87 +4,155 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SkyWeave - Start</title>
-    <style>
-      #preview-container {
-        margin: 15px 0;
-        display: none;
-      }
-      #preview-image {
-        max-width: 600px;
-        max-height: 400px;
-        border: 2px solid #ddd;
-        border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      }
-    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
   </head>
-  <body>
-    <h1>Create Your Weather Photo</h1>
-    <p>Your User ID: <strong>{{.UserID}}</strong></p>
-
-    <form action="/submit" method="POST" enctype="multipart/form-data">
-      <input type="hidden" name="user_id" value="{{.UserID}}" />
-
-      <div>
-        <label for="photo">Select Photo:</label>
-        <input
-          type="file"
-          id="photo"
-          name="photo"
-          accept="image/*"
-          required
-          onchange="previewPhoto(event)"
-        />
+  <body
+    class="bg-gradient-to-br from-blue-50 to-blue-100 min-h-screen p-4 py-8"
+  >
+    <div class="max-w-3xl mx-auto">
+      <!-- Header -->
+      <div class="text-center mb-8">
+        <h1 class="text-3xl md:text-4xl font-bold text-blue-600 mb-2">
+          Create Your Weather Photo
+        </h1>
+        <p class="text-gray-600">
+          Upload a photo and select weather conditions
+        </p>
       </div>
 
-      <div id="preview-container">
-        <p><strong>Photo Preview:</strong></p>
-        <img id="preview-image" alt="Selected photo preview" />
-      </div>
-
-      <div>
-        <label for="location">Location:</label>
-        <input
-          type="text"
-          id="location"
-          name="location"
-          placeholder="e.g., London,GB or 90210,US or Paris"
-          required
-        />
-        <small
-          >Enter city name (with optional country code) or US zip code</small
+      <!-- Form Card -->
+      <div class="bg-white rounded-2xl shadow-2xl p-6 md:p-8">
+        <form
+          action="/submit"
+          method="POST"
+          enctype="multipart/form-data"
+          class="space-y-6"
         >
+          <input type="hidden" name="user_id" value="{{.UserID}}" />
+
+          <!-- Photo Upload -->
+          <div>
+            <label
+              for="photo"
+              class="block text-sm font-semibold text-gray-700 mb-2"
+            >
+              Select Photo
+            </label>
+            <input
+              type="file"
+              id="photo"
+              name="photo"
+              accept="image/*"
+              required
+              onchange="previewPhoto(event)"
+              class="block w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer"
+            />
+          </div>
+
+          <!-- Photo Preview -->
+          <div id="preview-container" class="hidden">
+            <div
+              class="relative rounded-xl overflow-hidden border-2 border-blue-200 shadow-lg"
+            >
+              <img
+                id="preview-image"
+                alt="Selected photo preview"
+                class="w-full h-auto max-h-96 object-contain bg-gray-50"
+              />
+            </div>
+          </div>
+
+          <!-- Location -->
+          <div>
+            <label
+              for="location"
+              class="block text-sm font-semibold text-gray-700 mb-2"
+            >
+              Location
+            </label>
+            <input
+              type="text"
+              id="location"
+              name="location"
+              placeholder="e.g., London,GB or 90210,US or Paris"
+              required
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+            />
+            <p class="mt-1 text-xs text-gray-500">
+              Enter city name (with optional country code) or US zip code
+            </p>
+          </div>
+
+          <!-- Date -->
+          <div>
+            <label
+              for="date"
+              class="block text-sm font-semibold text-gray-700 mb-2"
+            >
+              Target Date
+            </label>
+            <input
+              type="date"
+              id="date"
+              name="date"
+              required
+              min="{{.MinDate}}"
+              max="{{.MaxDate}}"
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+            />
+            <p class="mt-1 text-xs text-gray-500">
+              Historical data (past year) or forecast (up to 16 days)
+            </p>
+          </div>
+
+          <!-- Time of Day -->
+          <div>
+            <label
+              for="time_of_day"
+              class="block text-sm font-semibold text-gray-700 mb-2"
+            >
+              Time of Day (Optional)
+            </label>
+            <select
+              id="time_of_day"
+              name="time_of_day"
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-white"
+            >
+              <option value="">Same as original photo</option>
+              <option value="dawn">Dawn (sunrise)</option>
+              <option value="morning">Morning (8-11 AM)</option>
+              <option value="noon">Noon (11 AM - 2 PM)</option>
+              <option value="afternoon">Afternoon (2-5 PM)</option>
+              <option value="dusk">Dusk (sunset)</option>
+              <option value="night">Night (after sunset)</option>
+            </select>
+            <p class="mt-1 text-xs text-gray-500">
+              Choose a time to transform the lighting in the photo
+            </p>
+          </div>
+
+          <!-- Submit Button -->
+          <div class="pt-4">
+            <button
+              type="submit"
+              class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 rounded-xl shadow-lg transform transition hover:scale-[1.02] active:scale-95"
+            >
+              Submit & Process
+            </button>
+          </div>
+        </form>
       </div>
 
-      <div>
-        <label for="date">Target Date:</label>
-        <input
-          type="date"
-          id="date"
-          name="date"
-          required
-          min="{{.MinDate}}"
-          max="{{.MaxDate}}"
-        />
-        <small>Historical data (past year) or forecast (up to 16 days)</small>
+      <!-- Back Link -->
+      <div class="text-center mt-6">
+        <a
+          href="/"
+          class="text-blue-600 hover:text-blue-700 text-sm font-medium"
+        >
+          ← Back to Home
+        </a>
       </div>
-
-      <div>
-        <label for="time_of_day">Time of Day (Optional):</label>
-        <select id="time_of_day" name="time_of_day">
-          <option value="">Same as original photo</option>
-          <option value="dawn">Dawn (sunrise)</option>
-          <option value="morning">Morning (8-11 AM)</option>
-          <option value="noon">Noon (11 AM - 2 PM)</option>
-          <option value="afternoon">Afternoon (2-5 PM)</option>
-          <option value="dusk">Dusk (sunset)</option>
-          <option value="night">Night (after sunset)</option>
-        </select>
-        <small>Choose a time to transform the lighting in the photo</small>
-      </div>
-
-      <button type="submit">Submit</button>
-    </form>
+    </div>
 
     <script>
       function previewPhoto(event) {
@@ -97,12 +165,12 @@
 
           reader.onload = function (e) {
             previewImage.src = e.target.result;
-            previewContainer.style.display = "block";
+            previewContainer.classList.remove("hidden");
           };
 
           reader.readAsDataURL(file);
         } else {
-          previewContainer.style.display = "none";
+          previewContainer.classList.add("hidden");
         }
       }
     </script>

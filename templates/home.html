@@ -4,10 +4,87 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SkyWeave - Home</title>
+    <script src="https://cdn.tailwindcss.com"></script>
   </head>
-  <body>
-    <h1>Welcome to SkyWeave!</h1>
-    <p>Transform your photos with weather conditions from any date.</p>
-    <a href="/start">Get Started</a>
+  <body
+    class="bg-gradient-to-br from-blue-50 to-blue-100 min-h-screen flex items-center justify-center p-4"
+  >
+    <div
+      class="max-w-2xl w-full bg-white rounded-2xl shadow-2xl p-8 md:p-12 text-center"
+    >
+      <div class="mb-8">
+        <h1 class="text-4xl md:text-5xl font-bold text-blue-600 mb-4">
+          Welcome to SkyWeave
+        </h1>
+        <p class="text-lg md:text-xl text-gray-600">
+          Transform your landscape photos with authentic weather conditions from
+          any date
+        </p>
+      </div>
+
+      <div class="mb-8 p-6 bg-blue-50 rounded-xl">
+        <p class="text-gray-700 mb-4">
+          Upload a landscape photo, choose a location and date, and watch as AI
+          transforms it to match historical or forecasted weather conditions.
+        </p>
+        <ul class="text-left text-gray-600 space-y-2 max-w-md mx-auto">
+          <li class="flex items-start">
+            <svg
+              class="w-6 h-6 text-blue-500 mr-2 flex-shrink-0"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M5 13l4 4L19 7"
+              ></path>
+            </svg>
+            <span>Historical weather from the past year</span>
+          </li>
+          <li class="flex items-start">
+            <svg
+              class="w-6 h-6 text-blue-500 mr-2 flex-shrink-0"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M5 13l4 4L19 7"
+              ></path>
+            </svg>
+            <span>Weather forecasts up to 16 days ahead</span>
+          </li>
+          <li class="flex items-start">
+            <svg
+              class="w-6 h-6 text-blue-500 mr-2 flex-shrink-0"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M5 13l4 4L19 7"
+              ></path>
+            </svg>
+            <span>Customize time of day for different lighting</span>
+          </li>
+        </ul>
+      </div>
+
+      <a
+        href="/start"
+        class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold text-lg px-8 py-4 rounded-xl shadow-lg transform transition hover:scale-105 active:scale-95"
+      >
+        Get Started →
+      </a>
+    </div>
   </body>
 </html>

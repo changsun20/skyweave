@@ -4,64 +4,181 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SkyWeave - Confirm Weather</title>
-    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
   </head>
-  <body>
-    <h1>Confirm Weather Conditions</h1>
+  <body
+    class="bg-gradient-to-br from-blue-50 to-blue-100 min-h-screen p-4 py-8"
+  >
+    <div class="max-w-4xl mx-auto">
+      <!-- Header -->
+      <div class="text-center mb-8">
+        <h1 class="text-3xl md:text-4xl font-bold text-blue-600 mb-2">
+          Review Weather Conditions
+        </h1>
+        <p class="text-gray-600">Confirm the details before transformation</p>
+      </div>
 
-    <div>
-      <h2>Request Details</h2>
-      <p><strong>Request ID:</strong> {{.Request.ID}}</p>
-      <p><strong>User ID:</strong> {{.Request.UserID}}</p>
-      <p>
-        <strong>Location:</strong> {{.Request.LocationName}}{{if
-        .Request.Country}}, {{.Request.Country}}{{end}}
-      </p>
-      <p>
-        <strong>Coordinates:</strong> {{printf "%.4f" .Request.Latitude}},
-        {{printf "%.4f" .Request.Longitude}}
-      </p>
-      <p><strong>Date:</strong> {{.Request.TargetDate}}</p>
+      <!-- Main Content Card -->
+      <div class="bg-white rounded-2xl shadow-2xl overflow-hidden">
+        <!-- Location & Date Info -->
+        <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6">
+          <div
+            class="flex flex-col md:flex-row md:items-center md:justify-between gap-4"
+          >
+            <div>
+              <h2 class="text-2xl font-bold mb-1">
+                {{.Request.LocationName}}{{if .Request.Country}},
+                {{.Request.Country}}{{end}}
+              </h2>
+              <p class="text-blue-100 text-sm">
+                {{printf "%.4f" .Request.Latitude}}, {{printf "%.4f"
+                .Request.Longitude}}
+              </p>
+            </div>
+            <div class="text-right">
+              <p class="text-blue-100 text-sm">Target Date</p>
+              <p class="text-xl font-semibold">{{.Request.TargetDate}}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Weather Details Grid -->
+        <div class="p-6 md:p-8">
+          <h3 class="text-xl font-bold text-gray-800 mb-4">
+            Weather Conditions
+          </h3>
+
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+            <!-- Condition -->
+            <div class="bg-blue-50 rounded-lg p-4">
+              <p class="text-xs text-gray-600 mb-1">Condition</p>
+              <p class="text-lg font-semibold text-gray-800">
+                {{.Request.WeatherCondition}}
+              </p>
+              <p class="text-xs text-gray-500">
+                {{.Request.WeatherDescription}}
+              </p>
+            </div>
+
+            <!-- Temperature -->
+            <div class="bg-blue-50 rounded-lg p-4">
+              <p class="text-xs text-gray-600 mb-1">Temperature</p>
+              <p class="text-lg font-semibold text-gray-800">
+                {{printf "%.1f" .Request.Temperature}}°C
+              </p>
+              <p class="text-xs text-gray-500">
+                Feels like {{printf "%.1f" .Request.FeelsLike}}°C
+              </p>
+            </div>
+
+            <!-- Humidity -->
+            <div class="bg-blue-50 rounded-lg p-4">
+              <p class="text-xs text-gray-600 mb-1">Humidity</p>
+              <p class="text-lg font-semibold text-gray-800">
+                {{.Request.Humidity}}%
+              </p>
+            </div>
+
+            <!-- Cloud Coverage -->
+            <div class="bg-blue-50 rounded-lg p-4">
+              <p class="text-xs text-gray-600 mb-1">Cloud Coverage</p>
+              <p class="text-lg font-semibold text-gray-800">
+                {{.Request.Clouds}}%
+              </p>
+            </div>
+
+            <!-- Wind Speed -->
+            <div class="bg-blue-50 rounded-lg p-4">
+              <p class="text-xs text-gray-600 mb-1">Wind Speed</p>
+              <p class="text-lg font-semibold text-gray-800">
+                {{printf "%.1f" .Request.WindSpeed}} m/s
+              </p>
+            </div>
+
+            <!-- Visibility -->
+            <div class="bg-blue-50 rounded-lg p-4">
+              <p class="text-xs text-gray-600 mb-1">Visibility</p>
+              <p class="text-lg font-semibold text-gray-800">
+                {{.Request.Visibility}}m
+              </p>
+            </div>
+          </div>
+
+          {{if .Request.Precipitation}}
+          <div
+            class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6"
+          >
+            <p class="text-sm font-semibold text-yellow-800">
+              Precipitation: {{.Request.Precipitation}}
+            </p>
+          </div>
+          {{end}}
+
+          <!-- Ready to Transform -->
+          <div
+            class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200 text-center"
+          >
+            <svg
+              class="w-12 h-12 text-blue-600 mx-auto mb-3"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M13 10V3L4 14h7v7l9-11h-7z"
+              ></path>
+            </svg>
+            <h4 class="text-lg font-bold text-gray-800 mb-2">
+              Ready for AI Transformation
+            </h4>
+            <p class="text-sm text-gray-600 leading-relaxed">
+              Your photo will be transformed to match these weather conditions using advanced AI technology.
+            </p>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="bg-gray-50 px-6 py-6 md:px-8 border-t border-gray-200">
+          <form
+            action="/confirm"
+            method="POST"
+            class="flex flex-col sm:flex-row gap-3"
+          >
+            <input type="hidden" name="request_id" value="{{.Request.ID}}" />
+
+            <button
+              type="submit"
+              name="action"
+              value="confirm"
+              class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 rounded-xl shadow-lg transform transition hover:scale-[1.02] active:scale-95"
+            >
+              ✓ Confirm & Transform
+            </button>
+
+            <button
+              type="submit"
+              name="action"
+              value="cancel"
+              class="sm:w-auto px-8 bg-gray-300 hover:bg-gray-400 text-gray-700 font-semibold py-4 rounded-xl transform transition hover:scale-[1.02] active:scale-95"
+            >
+              Cancel
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Back Link -->
+      <div class="text-center mt-6">
+        <a
+          href="/start"
+          class="text-blue-600 hover:text-blue-700 text-sm font-medium"
+        >
+          ← Start Over
+        </a>
+      </div>
     </div>
-
-    <div>
-      <h2>Weather Data (Historical/Forecast)</h2>
-      <p>
-        <strong>Condition:</strong> {{.Request.WeatherCondition}} -
-        {{.Request.WeatherDescription}}
-      </p>
-      <p>
-        <strong>Temperature:</strong> {{printf "%.1f" .Request.Temperature}}°C
-        (Feels like: {{printf "%.1f" .Request.FeelsLike}}°C)
-      </p>
-      <p><strong>Humidity:</strong> {{.Request.Humidity}}%</p>
-      <p><strong>Cloud Coverage:</strong> {{.Request.Clouds}}%</p>
-      <p>
-        <strong>Wind Speed:</strong> {{printf "%.1f" .Request.WindSpeed}} m/s
-      </p>
-      <p><strong>Visibility:</strong> {{.Request.Visibility}} meters</p>
-      {{if .Request.Precipitation}}
-      <p><strong>Precipitation:</strong> {{.Request.Precipitation}}</p>
-      {{end}}
-    </div>
-
-    <div>
-      <h2>Generated AI Prompt</h2>
-      <p style="border: 1px solid #ccc; padding: 10px; background: #f5f5f5">
-        {{.Request.AIPrompt}}
-      </p>
-      <small
-        >This prompt will be used to transform your image based on the weather
-        conditions above.</small
-      >
-    </div>
-
-    <form action="/confirm" method="POST">
-      <input type="hidden" name="request_id" value="{{.Request.ID}}" />
-      <button type="submit" name="action" value="confirm">
-        Confirm & Process Image
-      </button>
-      <button type="submit" name="action" value="cancel">Cancel</button>
-    </form>
   </body>
 </html>

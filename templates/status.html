@@ -1,68 +1,182 @@
-<div>
+<div class="text-center">
   {{if eq .Status "pending"}}
-  <p><strong>Status:</strong> Initializing request...</p>
+  <div
+    class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"
+  ></div>
+  <p class="text-lg font-medium text-gray-700">Initializing request...</p>
+
   {{else if eq .Status "geocoding"}}
-  <p><strong>Status:</strong> Looking up location...</p>
+  <div
+    class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"
+  ></div>
+  <p class="text-lg font-medium text-gray-700">Looking up location...</p>
+
   {{else if eq .Status "weather_fetching"}}
-  <p><strong>Status:</strong> Fetching weather data...</p>
+  <div
+    class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"
+  ></div>
+  <p class="text-lg font-medium text-gray-700">Fetching weather data...</p>
+
   {{else if eq .Status "weather_fetched"}}
   <!-- Automatically redirect to weather confirmation page -->
   <script>
     window.location.href = "/weather/{{.RequestID}}";
   </script>
-  <p><strong>Status:</strong> Redirecting to weather confirmation...</p>
+  <div
+    class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"
+  ></div>
+  <p class="text-lg font-medium text-gray-700">
+    Redirecting to weather confirmation...
+  </p>
+
   {{else if eq .Status "confirmed"}}
-  <p><strong>Status:</strong> Processing image...</p>
+  <div
+    class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"
+  ></div>
+  <p class="text-lg font-medium text-gray-700">Starting AI transformation...</p>
+
   {{else if eq .Status "processing"}}
-  <p><strong>Status:</strong> Image transformation in progress...</p>
+  <div
+    class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"
+  ></div>
+  <p class="text-lg font-medium text-gray-700">
+    AI is transforming your image...
+  </p>
+  <p class="text-sm text-gray-500 mt-2">This may take a few minutes</p>
+
   {{else if eq .Status "completed"}}
-  <h2>Completed!</h2>
-  <img
-    src="/image/{{.RequestID}}"
-    alt="Processed image"
-    style="max-width: 800px; display: block; margin: 20px 0"
-  />
-  <div style="margin: 20px 0">
-    <a
-      href="/image/{{.RequestID}}"
-      download="skyweave-{{.RequestID}}.jpg"
-      style="
-        display: inline-block;
-        padding: 10px 20px;
-        background-color: #007bff;
-        color: white;
-        text-decoration: none;
-        border-radius: 5px;
-        margin-right: 10px;
-      "
+  <div class="space-y-6">
+    <div class="flex items-center justify-center mb-6">
+      <svg
+        class="w-16 h-16 text-green-500"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+        ></path>
+      </svg>
+    </div>
+
+    <h2 class="text-2xl font-bold text-gray-800">Transformation Complete!</h2>
+
+    <div
+      class="rounded-xl overflow-hidden border-2 border-blue-200 shadow-lg bg-gray-50"
     >
-      Download Image
-    </a>
+      <img
+        src="/image/{{.RequestID}}"
+        alt="Transformed image"
+        class="w-full h-auto max-h-[600px] object-contain"
+      />
+    </div>
+
+    <div class="flex flex-col sm:flex-row gap-3 justify-center pt-4">
+      <a
+        href="/image/{{.RequestID}}"
+        download="skyweave-{{.RequestID}}.jpg"
+        class="inline-flex items-center justify-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-lg transform transition hover:scale-105 active:scale-95"
+      >
+        <svg
+          class="w-5 h-5 mr-2"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+          ></path>
+        </svg>
+        Download Image
+      </a>
+      <a
+        href="/start"
+        class="inline-flex items-center justify-center px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg shadow-lg transform transition hover:scale-105 active:scale-95"
+      >
+        <svg
+          class="w-5 h-5 mr-2"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 4v16m8-8H4"
+          ></path>
+        </svg>
+        Create Another
+      </a>
+    </div>
+  </div>
+
+  {{else if eq .Status "cancelled"}}
+  <div class="space-y-4">
+    <svg
+      class="w-16 h-16 text-gray-400 mx-auto"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M6 18L18 6M6 6l12 12"
+      ></path>
+    </svg>
+    <p class="text-lg font-medium text-gray-700">Request was cancelled</p>
     <a
       href="/start"
-      style="
-        display: inline-block;
-        padding: 10px 20px;
-        background-color: #28a745;
-        color: white;
-        text-decoration: none;
-        border-radius: 5px;
-      "
+      class="inline-block mt-4 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-lg transform transition hover:scale-105"
     >
-      Create Another
+      Start Over
     </a>
   </div>
-  {{else if eq .Status "cancelled"}}
-  <p><strong>Status:</strong> Request was cancelled.</p>
-  <p><a href="/start">Start Over</a></p>
+
   {{else if eq .Status "error"}}
-  <p><strong>Status:</strong> Error occurred</p>
-  {{if .ErrorMessage}}
-  <p style="color: red">{{.ErrorMessage}}</p>
-  {{end}}
-  <p><a href="/start">Try Again</a></p>
+  <div class="space-y-4">
+    <svg
+      class="w-16 h-16 text-red-500 mx-auto"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+      ></path>
+    </svg>
+    <p class="text-lg font-medium text-gray-700">An error occurred</p>
+    {{if .ErrorMessage}}
+    <div
+      class="bg-red-50 border border-red-200 rounded-lg p-4 max-w-md mx-auto"
+    >
+      <p class="text-sm text-red-700">{{.ErrorMessage}}</p>
+    </div>
+    {{end}}
+    <a
+      href="/start"
+      class="inline-block mt-4 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-lg transform transition hover:scale-105"
+    >
+      Try Again
+    </a>
+  </div>
+
   {{else}}
-  <p><strong>Status:</strong> {{.Status}}</p>
-  <p>Processing... Please wait.</p>
+  <div
+    class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"
+  ></div>
+  <p class="text-lg font-medium text-gray-700">Processing...</p>
+  <p class="text-sm text-gray-500 mt-2">Status: {{.Status}}</p>
   {{end}}
 </div>
