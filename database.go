@@ -45,7 +45,7 @@ func checkAndMigrate() error {
 	              latitude, longitude, target_date, image_path, 
 	              weather_condition, weather_description, temperature, feels_like,
 	              humidity, clouds, wind_speed, visibility, precipitation, ai_prompt,
-	              status, error_message, result_image_path, created_at, updated_at
+	              prediction_id, status, error_message, result_image_path, created_at, updated_at
 	              FROM requests LIMIT 0`
 
 	_, err := db.Exec(testQuery)
@@ -91,6 +91,7 @@ func recreateTables() error {
 		visibility INTEGER,
 		precipitation TEXT,
 		ai_prompt TEXT,
+		prediction_id TEXT,
 		status TEXT NOT NULL DEFAULT 'pending',
 		error_message TEXT,
 		result_image_path TEXT,
@@ -100,6 +101,7 @@ func recreateTables() error {
 	
 	CREATE INDEX IF NOT EXISTS idx_user_id ON requests(user_id);
 	CREATE INDEX IF NOT EXISTS idx_status ON requests(status);
+	CREATE INDEX IF NOT EXISTS idx_prediction_id ON requests(prediction_id);
 	`
 
 	_, err = db.Exec(schema)
@@ -132,6 +134,7 @@ type Request struct {
 	Visibility         int
 	Precipitation      string
 	AIPrompt           string
+	PredictionID       string
 	Status             string // pending, geocoding, weather_fetching, weather_fetched, confirmed, processing, completed, cancelled, error
 	ErrorMessage       string
 	ResultImagePath    string
@@ -186,6 +189,14 @@ func updateRequestError(id, errorMsg string) error {
 	return err
 }
 
+// updateRequestPredictionID updates the Replicate prediction ID for a request
+func updateRequestPredictionID(id, predictionID string) error {
+	query := `UPDATE requests SET prediction_id = ?, status = 'processing',
+	          updated_at = CURRENT_TIMESTAMP WHERE id = ?`
+	_, err := db.Exec(query, predictionID, id)
+	return err
+}
+
 // updateRequestStatus updates the status of a request
 func updateRequestStatus(id, status string) error {
 	query := `UPDATE requests SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`
@@ -212,6 +223,7 @@ func getRequest(id string) (*Request, error) {
 	          COALESCE(humidity, 0), COALESCE(clouds, 0),
 	          COALESCE(wind_speed, 0), COALESCE(visibility, 0),
 	          COALESCE(precipitation, ''), COALESCE(ai_prompt, ''),
+	          COALESCE(prediction_id, ''),
 	          status, COALESCE(error_message, ''), COALESCE(result_image_path, '')
 	          FROM requests WHERE id = ?`
 
@@ -223,6 +235,7 @@ func getRequest(id string) (*Request, error) {
 		&req.WeatherCondition, &req.WeatherDescription,
 		&req.Temperature, &req.FeelsLike, &req.Humidity, &req.Clouds,
 		&req.WindSpeed, &req.Visibility, &req.Precipitation, &req.AIPrompt,
+		&req.PredictionID,
 		&req.Status, &req.ErrorMessage, &req.ResultImagePath,
 	)
 	if err != nil {

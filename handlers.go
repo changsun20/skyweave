@@ -204,24 +204,11 @@ func confirmHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Confirm action - start async processing
+	// Confirm action - start async Replicate processing
 	updateRequestStatus(requestID, "confirmed")
 
-	// Simulate async processing in background
-	go func() {
-		time.Sleep(3 * time.Second) // Simulate API call delay
-
-		// Get the original image path
-		req, err := getRequest(requestID)
-		if err != nil {
-			log.Printf("Failed to get request: %v", err)
-			return
-		}
-
-		// For now, just copy the original image as "result"
-		// In production, this would be the Replicate API result
-		updateRequestResult(requestID, req.ImagePath)
-	}()
+	// Start real AI image editing with Replicate
+	go processImageWithReplicate(requestID)
 
 	// Redirect to processing page
 	http.Redirect(w, r, "/processing/"+requestID, http.StatusSeeOther)
