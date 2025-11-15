@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SkyWeave - Confirm Weather</title>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+  </head>
+  <body>
+    <h1>Confirm Weather Conditions</h1>
+
+    <div>
+      <h2>Your Request Details</h2>
+      <p><strong>Request ID:</strong> {{.Request.ID}}</p>
+      <p><strong>City:</strong> {{.Request.City}}</p>
+      <p><strong>Date:</strong> {{.Request.TargetDate}}</p>
+    </div>
+
+    <div>
+      <h2>Weather Forecast</h2>
+      <p><strong>Condition:</strong> {{.Request.WeatherCondition}}</p>
+      <p><strong>Temperature:</strong> {{.Request.Temperature}}</p>
+    </div>
+
+    <form action="/confirm" method="POST">
+      <input type="hidden" name="request_id" value="{{.Request.ID}}" />
+      <button type="submit" name="action" value="confirm">
+        Confirm & Process
+      </button>
+      <button type="submit" name="action" value="cancel">Cancel</button>
+    </form>
+  </body>
+</html>

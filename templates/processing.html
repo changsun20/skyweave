@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SkyWeave - Processing</title>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+  </head>
+  <body>
+    <h1>Processing Your Image</h1>
+
+    <div
+      id="status-container"
+      hx-get="/status/{{.RequestID}}"
+      hx-trigger="load, every 2s"
+      hx-swap="innerHTML"
+    >
+      <p>Initializing...</p>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,17 @@
+<div>
+  <p><strong>Status:</strong> {{.Status}}</p>
+  {{if eq .Status "completed"}}
+  <h2>Your Processed Image</h2>
+  <img
+    src="/image/{{.RequestID}}"
+    alt="Processed image"
+    style="max-width: 800px"
+  />
+  <p><a href="/start">Create Another</a></p>
+  {{else if eq .Status "cancelled"}}
+  <p>Request was cancelled.</p>
+  <p><a href="/start">Start Over</a></p>
+  {{else}}
+  <p>Processing... Please wait.</p>
+  {{end}}
+</div>
