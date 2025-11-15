@@ -211,7 +211,7 @@ func confirmHandler(w http.ResponseWriter, r *http.Request) {
 
 	if action == "cancel" {
 		updateRequestStatus(requestID, "cancelled")
-		http.Redirect(w, r, "/status/"+requestID, http.StatusSeeOther)
+		http.Redirect(w, r, "/start", http.StatusSeeOther)
 		return
 	}
 
