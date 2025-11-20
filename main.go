@@ -16,19 +16,26 @@ func main() {
 	// Initialize templates
 	initTemplates()
 
+	// Start session cleanup background task
+	startSessionCleanup()
+
 	mux := http.NewServeMux()
 
-	// Routes
-	mux.HandleFunc("GET /{$}", home)
-	mux.HandleFunc("GET /start", startHandler)
-	mux.HandleFunc("POST /submit", submitHandler)
-	mux.HandleFunc("GET /weather/{id}", weatherHandler)
-	mux.HandleFunc("POST /confirm", confirmHandler)
-	mux.HandleFunc("GET /processing/{id}", processingHandler)
-	mux.HandleFunc("GET /status/{id}", statusHandler)
-	mux.HandleFunc("GET /image/{id}", imageHandler)
+	// Public routes (no authentication required)
+	mux.HandleFunc("GET /login", loginHandler)
+	mux.HandleFunc("POST /login", loginHandler)
 
-	// Support Railway's PORT environment variable
+	// Protected routes (authentication required)
+	mux.HandleFunc("GET /{$}", requireAuth(home))
+	mux.HandleFunc("GET /start", requireAuth(startHandler))
+	mux.HandleFunc("POST /submit", requireAuth(submitHandler))
+	mux.HandleFunc("GET /weather/{id}", requireAuth(weatherHandler))
+	mux.HandleFunc("POST /confirm", requireAuth(confirmHandler))
+	mux.HandleFunc("GET /processing/{id}", requireAuth(processingHandler))
+	mux.HandleFunc("GET /status/{id}", requireAuth(statusHandler))
+	mux.HandleFunc("GET /image/{id}", requireAuth(imageHandler))
+
+	// Support PORT environment variable
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "4000"

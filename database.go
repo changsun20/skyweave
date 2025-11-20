@@ -54,6 +54,13 @@ func checkAndMigrate() error {
 		return fmt.Errorf("table structure mismatch: %w", err)
 	}
 
+	// Check sessions table
+	sessionQuery := `SELECT session_id, created_at, expires_at FROM sessions LIMIT 0`
+	_, err = db.Exec(sessionQuery)
+	if err != nil {
+		return fmt.Errorf("sessions table mismatch: %w", err)
+	}
+
 	return nil
 }
 
@@ -65,6 +72,10 @@ func recreateTables() error {
 	_, err := db.Exec("DROP TABLE IF EXISTS requests")
 	if err != nil {
 		return fmt.Errorf("failed to drop requests table: %w", err)
+	}
+	_, err = db.Exec("DROP TABLE IF EXISTS sessions")
+	if err != nil {
+		return fmt.Errorf("failed to drop sessions table: %w", err)
 	}
 
 	log.Println("Creating new tables with updated schema...")
@@ -103,6 +114,14 @@ func recreateTables() error {
 	CREATE INDEX IF NOT EXISTS idx_user_id ON requests(user_id);
 	CREATE INDEX IF NOT EXISTS idx_status ON requests(status);
 	CREATE INDEX IF NOT EXISTS idx_prediction_id ON requests(prediction_id);
+
+	CREATE TABLE IF NOT EXISTS sessions (
+		session_id TEXT PRIMARY KEY,
+		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		expires_at DATETIME NOT NULL
+	);
+
+	CREATE INDEX IF NOT EXISTS idx_expires_at ON sessions(expires_at);
 	`
 
 	_, err = db.Exec(schema)
@@ -245,4 +264,33 @@ func getRequest(id string) (*Request, error) {
 		return nil, err
 	}
 	return req, nil
+}
+
+// Session management functions
+
+// createSession creates a new session with 24-hour expiration
+func createSession(sessionID string) error {
+	query := `INSERT INTO sessions (session_id, expires_at) 
+	          VALUES (?, datetime('now', '+24 hours'))`
+	_, err := db.Exec(query, sessionID)
+	return err
+}
+
+// isValidSession checks if a session exists and hasn't expired
+func isValidSession(sessionID string) bool {
+	query := `SELECT COUNT(*) FROM sessions 
+	          WHERE session_id = ? AND expires_at > datetime('now')`
+	var count int
+	err := db.QueryRow(query, sessionID).Scan(&count)
+	if err != nil {
+		return false
+	}
+	return count > 0
+}
+
+// cleanupExpiredSessions removes expired sessions from database
+func cleanupExpiredSessions() error {
+	query := `DELETE FROM sessions WHERE expires_at <= datetime('now')`
+	_, err := db.Exec(query)
+	return err
 }

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SkyWeave - Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body
+    class="bg-gradient-to-br from-blue-50 to-blue-100 min-h-screen flex items-center justify-center p-4"
+  >
+    <div class="max-w-md w-full bg-white rounded-2xl shadow-2xl p-8">
+      <!-- Logo/Header -->
+      <div class="text-center mb-8">
+        <h1 class="text-3xl font-bold text-blue-600 mb-2">SkyWeave</h1>
+        <p class="text-gray-600">Please enter the access passphrase</p>
+      </div>
+
+      <!-- Login Form -->
+      <form method="POST" class="space-y-6">
+        {{if .Error}}
+        <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+          <p class="text-sm text-red-700 text-center">{{.Error}}</p>
+        </div>
+        {{end}}
+
+        <div>
+          <label
+            for="passphrase"
+            class="block text-sm font-semibold text-gray-700 mb-2"
+          >
+            Access Passphrase
+          </label>
+          <input
+            type="password"
+            id="passphrase"
+            name="passphrase"
+            required
+            autofocus
+            placeholder="Enter passphrase"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+          />
+        </div>
+
+        <button
+          type="submit"
+          class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 rounded-xl shadow-lg transform transition hover:scale-[1.02] active:scale-95"
+        >
+          Access SkyWeave
+        </button>
+      </form>
+
+      <!-- Info -->
+      <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+        <p class="text-xs text-gray-600 text-center">
+          Access is granted for 24 hours after successful authentication. Please
+          contact the administrator for assistance.
+        </p>
+      </div>
+    </div>
+  </body>
+</html>
